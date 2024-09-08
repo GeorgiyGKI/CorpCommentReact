@@ -9,7 +9,6 @@ using System.Text.Json;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddCors(options =>
 {
 	options.AddPolicy("AllowAllOrigins",
@@ -20,12 +19,7 @@ builder.Services.AddCors(options =>
 				   .AllowAnyHeader();
 		});
 });
-
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddControllers().AddJsonOptions(options =>
-{
-    options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-});
+builder.Services.AddLogging();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -33,27 +27,15 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 var app = builder.Build();
 
-builder.Services.AddLogging();
-app.UseCors("AllowAllOrigins");
-//app.UseDefaultFiles();
-//app.UseStaticFiles();
-
 // Configure the HTTP request pipeline.
+app.UseCors("AllowAllOrigins");
+
 if (app.Environment.IsDevelopment())
 {
 	app.UseSwagger();
 	app.UseSwaggerUI();
 }
-
-app.UseHttpsRedirection();
-
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-// await dbContext.Feedbacks.ToListAsync());
-//GET https://localhost:7290/feedbacks
+//Minimal API
 app.MapGet("/feedbacks", async (AppDbContext dbContext) =>
 {
 	return new FeedbackResponse
@@ -61,7 +43,6 @@ app.MapGet("/feedbacks", async (AppDbContext dbContext) =>
 		Feedbacks = await dbContext.Feedbacks.ToListAsync()
 	};
 });
-//POST https://localhost:7290/feedbacks
 app.MapPost("/feedbacks", async (AppDbContext dbContext, Feedback feedback, ILogger<Program> logger) =>
 {
 	if (feedback == null)
@@ -77,7 +58,6 @@ app.MapPost("/feedbacks", async (AppDbContext dbContext, Feedback feedback, ILog
 	logger.LogInformation($"Feedback saved with ID: {feedback.Id}");
 	return Results.NoContent();
 });
-//PUT https://localhost:7290/feedbacks
 app.MapPut("/feedbacks/{id}", async (AppDbContext dbContext, int id, Feedback inputFeedback) =>
 {
 	var feedback = await dbContext.Feedbacks.FindAsync(id);
