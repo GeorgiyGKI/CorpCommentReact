@@ -1,5 +1,5 @@
 # CorpCommentReact 
-Asp Dot NET Core + React.  
+ASP.NET Core + React.  
 1)write 'update-database' in the nuget console.  
 2)run the server and client projects.  
 
